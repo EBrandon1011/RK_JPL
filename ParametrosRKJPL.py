@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-@author: brandon
+@author: eddybrandon
 """
 
 import pylab
@@ -9,10 +9,10 @@ import matplotlib.pyplot as plt
 
 AU=149597870700
 
-NPlaneta='Jupiter'		#Cuerpo a analizar (Júpiter en este caso)
-hh=1
+NPlaneta='Jupiter'		#Cuerpo a analizar (Júpiter en este ejemplo)
+hh=1                
 NP= 5000*hh
-data = pylab.loadtxt('RK{}Mond.dat'.format(NPlaneta), dtype=float)	#Archivo de datos con potencial modificado.
+data = pylab.loadtxt('RK{}Mond.dat'.format(NPlaneta), dtype=float)  	#Archivo de datos con potencial modificado.
 jdata = pylab.loadtxt('JPL{}.dat'.format(NPlaneta), dtype=float)		#Archivo de datos con información de HORIZONS JPL.
 ndata = pylab.loadtxt('RK{}Newton.dat'.format(NPlaneta), dtype=float)	#Archivo de datos con potencial newtoniano.
 
@@ -38,6 +38,7 @@ perj=10     #Para el periodo
 diasj=0      #Num. de días
 
 for i in range(NP):
+    #Lectura de los datos de salida del método numérico
     dx=xm[i]
     dy=ym[i]
     dz=zm[i]
@@ -88,6 +89,7 @@ for i in range(NP):
             diasj=i
             
 Datos=open("JPL{}RK.dat".format(NPlaneta), "w")
+
 ### Mond
 saM=(rminM+rmaxM)/2
 eccM=(rmaxM-rminM)/(rminM+rmaxM)
@@ -95,6 +97,7 @@ Datos.write('{} \n \n'.format(NPlaneta)+'MOND: \n \n'+'a={} [UA]; a={} [km]'.for
 Datos.write('\n'+ 'Perihelio: en [UA]={}; en [km]={} \n'.format(rminM, rminM*AU))
 Datos.write('Afelio: en [UA]={}; en [km]={} \n'.format(rmaxM, rmaxM*AU))
 Datos.write('Período: {} días; {} años; ({} [UA]) \n \n'.format(diasM/hh, diasM/365.2425, perM))
+
 ### Newton
 saN=(rminN+rmaxN)/2
 eccN=(rmaxN-rminN)/(rminN+rmaxN)
@@ -102,6 +105,7 @@ Datos.write('NEWTON: \n \n'+'a={} [UA]; a={} [km]'.format(saN, saN*AU)+'ecc= {}'
 Datos.write('\n'+ 'Perihelio: en [UA]={}; en [km]={} \n'.format(rminN, rminN*AU))
 Datos.write('Afelio: en [UA]={}; en [km]={} \n'.format(rmaxN, rmaxN*AU))
 Datos.write('Período: {} días; {} años; ({} [UA]) \n \n'.format(diasN/hh, diasN/365.2425, perN))
+
 ### JPL
 saj=(rminj+rmaxj)/2
 eccj=(rmaxj-rminj)/(rminj+rmaxj)
@@ -136,31 +140,3 @@ Datos.write('D ecc = {} % \n'.format(erreMN))
 Datos.write('D Per = {} % \n'.format(errPerMN))   
 
 Datos.closed
-
-#############
-#Gráfica de errores X, Y, Z --- Newton vs. JPL
-errX={}
-errY={}
-errZ={}
-
-for i in range(NP):
-    errX[i]=xj[i]-xn[i]
-    errY[i]=yj[i]-yn[i]
-    errZ[i]=zj[i]-zn[i]
-    
-plt.xlabel(r'$ m [días]$', fontsize=15)
-plt.xticks(fontsize=13)
-plt.xlim(0,NP/(hh))
-plt.ylabel(r'$\Delta [UA \cdot 10^{-7}]$', fontsize=15)
-plt.yticks(fontsize=13)
-ts=[i/hh for i in range(NP)]
-xs=[errX[i]*10**7 for i in range(NP)]
-ys=[errY[i]*10**7 for i in range(NP)]
-zs=[errZ[i]*10**7 for i in range(NP)]
-plt.plot(ts, xs, 'b-', label=r'$\Delta x$', linewidth=2)
-plt.plot(ts, ys, 'r-', label=r'$\Delta y$', linewidth=2)
-plt.plot(ts, zs, 'g-', label=r'$\Delta z$', linewidth=2)
-plt.grid(True)
-plt.legend(loc=2)
-plt.savefig('JplRk{}.pdf'.format(NPlaneta))
-plt.show()
